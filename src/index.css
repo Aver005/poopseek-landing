@@ -1,0 +1,212 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+/*
+  PoopSeek 💩 — Operator Console.
+  The page IS the PoopSeek TUI. Palette is the product's real ANSI theme
+  (src/cli/colors.ts, dark theme) rendered on warm espresso-black.
+  pink-400 = the "PoopSeek" accent (model-label colour), amber-300 = the 💩
+  signature, sky-400 = commands, green-400 = ✓. Never invent a colour outside
+  this token set.
+*/
+@theme {
+  --font-emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
+  --font-display: 'Bricolage Grotesque Variable', 'Hanken Grotesk Variable', var(--font-emoji), sans-serif;
+  --font-sans: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, var(--font-emoji), sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', Consolas, var(--font-emoji), monospace;
+
+  /* surfaces — warm plum-black, not cold navy */
+  --color-void: #0d080c;
+  --color-ink: #120b10;
+  --color-panel: #1a1017;
+  --color-panel-hi: #23151f;
+  --color-panel-deep: #0f090d;
+  --color-line: #34212c;
+  --color-line-hi: #4a2e3d;
+
+  /* text */
+  --color-fg: #f6ecf2;
+  --color-soft: #cbb4c1;
+  --color-dim: #8d7783;
+  --color-faint: #5f4c57;
+
+  /* brand accents — verbatim from src/cli/colors.ts (dark theme) */
+  --color-pink: #f472b6; /* pink-400  — the PoopSeek mark / model label */
+  --color-amber: #fcd34d; /* amber-300 — 💩 signature / warnings */
+  --color-cyan: #38bdf8; /* sky-400   — commands / interactive */
+  --color-green: #4ade80; /* green-400 — success / ✓ */
+  --color-red: #f87171; /* red-400   — errors */
+  --color-blue: #60a5fa; /* blue-400  — figma */
+  --color-orange: #fb923c; /* orange-400 */
+
+  --color-sel: #3a1c2c;
+
+  --animate-blink: blink 1.06s step-end infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-marquee-rev: marquee-rev 34s linear infinite;
+  --animate-drift: drift 26s ease-in-out infinite;
+  --animate-drift-slow: drift-slow 38s ease-in-out infinite;
+  --animate-grain: grain 0.9s steps(4) infinite;
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes marquee-rev {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(6%, -4%, 0) scale(1.12);
+    }
+  }
+  @keyframes drift-slow {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1.05);
+    }
+    50% {
+      transform: translate3d(-7%, 5%, 0) scale(1.18);
+    }
+  }
+  @keyframes grain {
+    0% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-3%, 4%);
+    }
+    50% {
+      transform: translate(2%, -3%);
+    }
+    75% {
+      transform: translate(4%, 2%);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-sel);
+  color: var(--color-pink);
+}
+
+/* Warm terminal-gutter scrollbar — square, no rounding */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-panel-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-hi);
+  border: 3px solid var(--color-panel-deep);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-pink);
+}
+
+/* --- Console panel: the recurring chrome unit --- */
+.pane {
+  position: relative;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--color-panel) 92%, transparent), var(--color-panel-deep));
+  border: 1px solid var(--color-line);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-pink) 8%, transparent),
+    0 24px 60px -30px rgba(0, 0, 0, 0.9);
+}
+.pane-glow {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-pink) 14%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-pink) 12%, transparent),
+    0 40px 90px -40px color-mix(in oklab, var(--color-pink) 30%, transparent);
+}
+
+/* the pin-stripe title bar of a pane */
+.pane-dots span {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+}
+
+/* text bloom for oversized display numerals */
+.bloom-pink {
+  text-shadow: 0 0 34px color-mix(in oklab, var(--color-pink) 55%, transparent);
+}
+.bloom-amber {
+  text-shadow: 0 0 30px color-mix(in oklab, var(--color-amber) 50%, transparent);
+}
+
+/* thin hairline separators tinted warm */
+.hair {
+  background: linear-gradient(90deg, transparent, var(--color-line-hi), transparent);
+}
+
+/* dotted leader used in the command palette */
+.leader {
+  border-bottom: 1px dotted var(--color-faint);
+}
+
+/* ambient film grain overlay */
+.grain-layer {
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: var(--animate-grain);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .grain-layer,
+  [class*='animate-'] {
+    animation: none !important;
+  }
+}
